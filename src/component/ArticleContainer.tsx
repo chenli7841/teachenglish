@@ -1,6 +1,8 @@
+import { useContext } from "react";
 import Article1 from "../content/Article1";
 import Article2 from "../content/Article2";
 import Article3 from "../content/Article3";
+import articleContext from "../context/article-context";
 
 interface ArticleContainerProp {
     selectedTitle: string
@@ -21,9 +23,10 @@ function ArticleContainer(props: ArticleContainerProp) {
         }
     }
 
+    const context = useContext(articleContext);
     return (            
         <>
-        {getArticles(props.selectedTitle)}
+        {getArticles(context.selectedArticle)}
         </>
     
     );
