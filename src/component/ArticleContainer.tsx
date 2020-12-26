@@ -5,15 +5,15 @@ import Article3 from "../content/Article3";
 import { ArticleContext } from "../context/article-context";
 
 function ArticleContainer() {
-    const getArticles = (title: string) => {
+    const getArticles = (title: string, sentenceId: number) => {
         switch (title) {
           case '':
           case 'Article 1':
-            return (<Article1></Article1>);
+            return (<Article1 currentSentenceId={sentenceId}></Article1>);
           case 'Article 2':
-            return (<Article2></Article2>);
+            return (<Article2 currentSentenceId={sentenceId}></Article2>);
           case 'Article 3':
-            return (<Article3></Article3>);
+            return (<Article3 currentSentenceId={sentenceId}></Article3>);
           default:
             return null;
         }
@@ -22,7 +22,7 @@ function ArticleContainer() {
     const context = useContext(ArticleContext);
     return (            
         <>
-        {getArticles(context.selectedArticle)}
+        {getArticles(context.selectedArticle, context.selectedSentenceId)}
         </>
     
     );

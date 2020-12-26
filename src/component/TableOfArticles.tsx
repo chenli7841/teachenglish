@@ -7,26 +7,17 @@ export interface TableOfArticlesProp {
 }
 
 function TableOfArticles(props: TableOfArticlesProp) {
-    const listItem = {
-        height: '40px',
-        display: 'flex',
-        alignItems: 'center',
-        paddingLeft: '20px',
-        '&:hover': {
-            background: '#ccc'
-        }
-    };
-    const setSelectedArticle = useContext(ArticleContext).setSelectedArticle;
+    const {selectedArticle, setSelectedArticle} = useContext(ArticleContext);
     const titles = props.titles.map(t => 
         <div
           key={t}
           className='tableOfContent_listItem'
-          style={listItem}
+          style={{'background': selectedArticle === t ? '#aaa' : '', 'color': selectedArticle === t ? '#fff' : ''}}
           onClick={() => setSelectedArticle(t)}
         >{t}</div>
     );
     return (
-        <div style={{paddingTop: '20px', position: 'absolute', height: '100%', width: '100%'}}>
+        <div style={{paddingTop: '20px', position: 'fixed', height: '100%', width: '120px', background: '#333'}}>
             {titles}
         </div>
     );

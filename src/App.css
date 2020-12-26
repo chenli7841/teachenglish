@@ -3,8 +3,10 @@
     display: flex;
     align-items: center;
     padding-left: 20px;
+    color: #ddd
 }
 
 .tableOfContent_listItem:hover {
     background-color: #aaa;
+    color: #fff;
 }
