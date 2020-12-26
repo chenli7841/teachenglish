@@ -2,13 +2,9 @@ import { useContext } from "react";
 import Article1 from "../content/Article1";
 import Article2 from "../content/Article2";
 import Article3 from "../content/Article3";
-import articleContext from "../context/article-context";
+import { ArticleContext } from "../context/article-context";
 
-interface ArticleContainerProp {
-    selectedTitle: string
-}
-
-function ArticleContainer(props: ArticleContainerProp) {
+function ArticleContainer() {
     const getArticles = (title: string) => {
         switch (title) {
           case '':
@@ -23,7 +19,7 @@ function ArticleContainer(props: ArticleContainerProp) {
         }
     }
 
-    const context = useContext(articleContext);
+    const context = useContext(ArticleContext);
     return (            
         <>
         {getArticles(context.selectedArticle)}

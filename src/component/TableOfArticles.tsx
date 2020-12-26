@@ -1,8 +1,9 @@
+import { useContext } from 'react';
 import '../App.css'
+import {ArticleContext} from '../context/article-context';
 
 export interface TableOfArticlesProp {
-    titles: string[],
-    selectArticle(article: string): void
+    titles: string[]
 }
 
 function TableOfArticles(props: TableOfArticlesProp) {
@@ -15,12 +16,13 @@ function TableOfArticles(props: TableOfArticlesProp) {
             background: '#ccc'
         }
     };
+    const setSelectedArticle = useContext(ArticleContext).setSelectedArticle;
     const titles = props.titles.map(t => 
         <div
           key={t}
           className='tableOfContent_listItem'
           style={listItem}
-          onClick={() => props.selectArticle(t)}
+          onClick={() => setSelectedArticle(t)}
         >{t}</div>
     );
     return (
