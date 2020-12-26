@@ -1,0 +1,10 @@
+.tableOfContent_listItem {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+}
+
+.tableOfContent_listItem:hover {
+    background-color: #aaa;
+}
