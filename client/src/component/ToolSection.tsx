@@ -1,14 +1,27 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ArticleContext } from "../context/article-context";
 import Button from "../widget/Button";
 
 interface ToolSectionProp {
-    width: string;
+    screenX: string,
+    screenY: string
 }
 
 function ToolSection(props: ToolSectionProp) {
 
+    const [ initialX, setInitialX ] = useState(0);
+    const [ initialY, setInitialY ] = useState(0);
+    const [ dialogRight, setDialogRight ] = useState(30);
+    const [ dialogTop, setDialogTop ] = useState(20);
+
     const { selectedSentenceId, setSelectedSentenceId, showSentenceComponent, setShowSentenceComponent } = useContext(ArticleContext);
+
+    useEffect(() => {
+        const newRight = dialogRight - ((props.screenX === '' ? 0 : parseInt(props.screenX)) - initialX);
+        const newTop = dialogTop + (props.screenY === '' ? 0 : parseInt(props.screenY)) - initialY;
+        setDialogTop(newTop);
+        setDialogRight(newRight);        
+    }, [props.screenX, props.screenY]);
 
     const onNextSentence = () => {
         setSelectedSentenceId(selectedSentenceId + 1);
@@ -23,9 +36,14 @@ function ToolSection(props: ToolSectionProp) {
     const onToggleShowSentenceComponents = () => {
         setShowSentenceComponent(!showSentenceComponent);
     }
+
+    const onDragStart = (e: any) => {
+        setInitialX(parseInt(e.nativeEvent.screenX));
+        setInitialY(parseInt(e.nativeEvent.screenY));
+    }
     
     return (
-        <div style={{paddingTop: '20px', position: 'fixed', height: '100%', width: props.width}}>
+        <div draggable onDragStart={onDragStart} style={{top: dialogTop + 'px', right: dialogRight + 'px', position: 'fixed'}}>
             <div><Button onClick={() => onNextSentence()}>下一句</Button></div>
             <div><Button onClick={() => onPrevSentence()}>上一句</Button></div>
             <div><Button onClick={() => onToggleShowSentenceComponents()}>显示句子成分</Button></div>
