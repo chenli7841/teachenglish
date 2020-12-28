@@ -2,9 +2,13 @@ import { useContext } from "react";
 import { ArticleContext } from "../context/article-context";
 import Button from "../widget/Button";
 
-function ToolSection() {
+interface ToolSectionProp {
+    width: string;
+}
 
-    const { selectedSentenceId, setSelectedSentenceId} = useContext(ArticleContext);
+function ToolSection(props: ToolSectionProp) {
+
+    const { selectedSentenceId, setSelectedSentenceId, showSentenceComponent, setShowSentenceComponent } = useContext(ArticleContext);
 
     const onNextSentence = () => {
         setSelectedSentenceId(selectedSentenceId + 1);
@@ -15,11 +19,16 @@ function ToolSection() {
             setSelectedSentenceId(selectedSentenceId - 1);
         }
     }
+
+    const onToggleShowSentenceComponents = () => {
+        setShowSentenceComponent(!showSentenceComponent);
+    }
     
     return (
-        <div style={{paddingTop: '20px', position: 'fixed', height: '100%', width: '60px'}}>
-            <div><Button onClick={() => onNextSentence()}>Next</Button></div>
-            <div><Button onClick={() => onPrevSentence()}>Prev</Button></div>
+        <div style={{paddingTop: '20px', position: 'fixed', height: '100%', width: props.width}}>
+            <div><Button onClick={() => onNextSentence()}>下一句</Button></div>
+            <div><Button onClick={() => onPrevSentence()}>上一句</Button></div>
+            <div><Button onClick={() => onToggleShowSentenceComponents()}>显示句子成分</Button></div>
         </div>
     )
 }

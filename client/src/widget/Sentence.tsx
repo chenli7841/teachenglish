@@ -1,9 +1,13 @@
+import { useContext } from "react";
+import { ArticleContext } from "../context/article-context";
+
 interface SentenceProps {
-    highlight: boolean
+    sid: number
 }
 
 function Sentence(props: React.PropsWithChildren<SentenceProps>) {
-    return (<span style={{fontWeight: props.highlight ? 600 : 400}}>{props.children}</span>)
+    const context = useContext(ArticleContext);
+    return (<span style={{fontWeight: context.selectedSentenceId === props.sid ? 600 : 400}}>{props.children}</span>)
 }
 
 export default Sentence;

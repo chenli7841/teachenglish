@@ -3,7 +3,8 @@ import '../App.css'
 import {ArticleContext} from '../context/article-context';
 
 export interface TableOfArticlesProp {
-    titles: string[]
+    titles: string[];
+    width: string;
 }
 
 function TableOfArticles(props: TableOfArticlesProp) {
@@ -17,7 +18,7 @@ function TableOfArticles(props: TableOfArticlesProp) {
         >{t}</div>
     );
     return (
-        <div style={{paddingTop: '20px', position: 'fixed', height: '100%', width: '120px', background: '#333'}}>
+        <div style={{paddingTop: '20px', position: 'fixed', height: '100%', width: props.width, background: '#333'}}>
             {titles}
         </div>
     );
