@@ -9,7 +9,6 @@ import { ArticleContext } from "../context/article-context";
 function ArticleContainer() {
     const getArticles = (title: string, sentenceId: number) => {
         switch (title) {
-          case '':
           case 'Article 1':
             return (<Article1 currentSentenceId={sentenceId}></Article1>);
           case 'Article 2':

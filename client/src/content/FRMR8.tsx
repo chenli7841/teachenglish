@@ -3,39 +3,46 @@ import Subject from "../widget/Subject";
 import Title from "../widget/Title";
 import Verb from "../widget/Verb";
 
-function FRMR7() {
+function FRMR8() {
     return (
         <div style={{fontSize: '20px'}}>
-            <Title>READING 7: DECIPHERING THE LIQUIDITY AND CREDIT CRUNCH 2007-2008</Title>
-            <p style={{fontSize: '24px', fontWeight: 600}}>MODULE 7.1: EVENTS THAT LED TO THE FINANCIAL CRISIS</p>
-            <p><Sentence sid={1}><Subject sid={1}>The housing bubble</Subject>, which later burst and caused a liquidity squeeze, <Verb sid={1}>can be seen</Verb> as the product of the following two broad factors:</Sentence></p>
+            <Title>READING 7: : GETTING UP TO SPEED ON THE FINANCIAL CRISIS: A ONEWEEKEND-READER’S GUIDE</Title>
+            <p style={{fontSize: '24px', fontWeight: 600}}>MODULE 8.1: FINANCIAL CRISIS OVERVIEW AND TIME LINE</p>
+            <p style={{fontSize: '24px', fontWeight: 600}}>Key Terms Related to the Financial Crisis</p>
             <p>
-                <Sentence sid={2}>1. <i>Cheap credit</i>. <Subject sid={2}>Interest rates</Subject> <Verb sid={2}>were</Verb> low in the lead-up to the housing bubble due to a combination of factors.</Sentence>
-                &nbsp;<Sentence sid={3}>First, <Subject sid={3}>an increase</Subject> in demand for U.S. securities by foreign governments experiencing trade surpluses <Verb sid={3}>put</Verb> downward pressure on interest rates.</Sentence>
-                &nbsp;<Sentence sid={4}>Also, <Subject sid={4}>the Federal Reserve</Subject> <Verb sid={4}>adopted</Verb> a lax interest rate policy that promoted low interest rates to fend off deflation after the bursting of the internet bubble.</Sentence>
+                <Sentence sid={1}>Asset-backed commercial paper (ABCP). Commercial paper is created when nonfinancial firms with high credit ratings raise capital by issuing short-term debt.</Sentence>
+                &nbsp;<Sentence sid={2}>ABCP is the bundling of longer-term debt from mortgages, credit card receivables, and other loans.</Sentence>
+                &nbsp;<Sentence sid={3}>When ABCP reaches its maturity date, it is rolled over and bundled into new ABCP.</Sentence>
             </p>
             <p>
-                <Sentence sid={5}>2. <i>Decline in lending standards</i>. In the past, <Subject sid={5}>banks</Subject> <Verb sid={5}>held</Verb> onto loans that they made until the loan was repaid.</Sentence>
-                &nbsp;<Sentence sid={6}>In the years leading up to the housing bubble, <Subject sid={6}>this traditional banking model</Subject> <Verb sid={6}>was replaced</Verb> by a new originate-to-distribute model of banking, in which loans are collected together, sliced into tranches, and then sold as securities.</Sentence>
-                &nbsp;<Sentence sid={7}>Since loan-originating institutions could transfer the default risk of borrowers to investors, <Subject sid={7}>the originating institutions</Subject> <Verb sid={7}>had</Verb> little incentive to be rigorous or diligent in their creditworthiness assessments. </Sentence>
-                &nbsp;<Sentence sid={8}>(There are stories of banks awarding mortgage loans upon presentation of only a driver’s license.)</Sentence>
-                &nbsp;<Sentence sid={9}>As a result, <Subject sid={9}>lending standards</Subject> <Verb sid={9}>fell</Verb> substantially</Sentence>
+                <Sentence sid={4}>Bank run or “run”. A bank run occurs when depositors withdraw cash from a bank thinking the bank is about to fail.</Sentence>
+                &nbsp;<Sentence sid={5}>A run can also be used as a generic term describing the withdrawal of cash by investors from any type of financial intermediary [e.g., a pension plan (depositor) withdrawing cash from a money market mutual fund (MMF)].</Sentence>
+                &nbsp;<Sentence sid={6}>This example would be a run on the MMF.</Sentence>
             </p>
             <p>
-                <Sentence sid={10}><Subject sid={10}>This decline</Subject> in lending standards and abundance of cheap credit <Verb sid={10}>led</Verb> banks to offer credit at low interest rates and lenient terms.</Sentence>
-                &nbsp;<Sentence sid={11}><Subject sid={11}>This environment</Subject> of cheap money and plentiful borrowing opportunities <Verb sid={11}>led to</Verb> a flood of real estate purchases, which generated a housing boom.</Sentence>
+                <Sentence sid={7}>Shadow bank. A shadow bank is a financial institution other than a regulated depository institution.</Sentence>
+                &nbsp;<Sentence sid={8}>Examples of regulated depository institutions are commercial banks, thrifts, and credit unions.</Sentence>
+                &nbsp;<Sentence sid={9}>Examples of shadow banks are private equity funds, investment banks, hedge funds, mortgage lenders, and insurance companies.</Sentence>
             </p>
-            <p><Sentence sid={12}><Subject sid={12}>The 2007–2009 U.S. mortgage crisis</Subject> <Verb sid={12}>produced</Verb> unprecedented financial turmoil—indeed, the worst since the Great Depression.</Sentence></p>
-            <p><Sentence sid={13}><Subject sid={13}>The related liquidity squeeze</Subject> <Verb sid={13}>was caused</Verb> by two major banking industry trends:</Sentence></p>
-            <p><Sentence sid={14}>1. <i>Risk transference</i> through asset securitization: through the originate-to-distribute model</Sentence></p>
-            <p><Sentence sid={15}>2. <i>Asset-liability maturity mismatch</i>: the purchase of long-term assets through the rollover of short-term debt instruments.</Sentence></p>
-            <p style={{fontSize: '24px', fontWeight: 600}}>Securitization</p>
-            <p><Sentence sid={16}>In the past, <Subject sid={16}>banks</Subject> that originated loans <Verb sid={16}>held</Verb> those loans until they were paid off; hence, <Subject sid={16}>these banks</Subject> <Verb sid={16}>had</Verb> an incentive to exercise due diligence in evaluating the creditworthiness of the borrower.</Sentence></p>
             <p>
-                <Sentence sid={17}>More recently, instead of retaining loans and carrying the risk of default of borrowers, <Subject sid={17}>banks</Subject> <Verb sid={17}>began to transfer</Verb> this risk to investors through securitization.</Sentence>
-                &nbsp;<Sentence sid={18}><Subject sid={18}>Banks</Subject> <Verb sid={18}>developed</Verb> structured products [e.g., collateralized debt obligations (CDOs)] based on an underlying pool of mortgages, bonds, and other loans.</Sentence>
-                &nbsp;<Sentence sid={19}><Subject sid={19}>The portfolio of underlying assets</Subject> <Verb sid={19}>is sliced</Verb> into various tranches (mainly senior, mezzanine, and equity), which offer a mix of risk and return tradeoffs. </Sentence>
-                &nbsp;<Sentence sid={20}>For example, <Subject sid={20}>the senior tranche</Subject> <Verb sid={20}>is</Verb> the least risky due to the priority claim on cash flows; therefore, <Subject sid={20}>it</Subject> <Verb sid={20}>offers</Verb> the lowest return.</Sentence>
+                <Sentence sid={10}>Repurchase agreements (repos). Repos involve an institutional investor making a shortterm deposit of cash with a shadow bank that in turn pays the investor interest on the cash (called the repo rate).</Sentence>
+                &nbsp;<Sentence sid={11}>The shadow bank also gives the investor some type of collateral that the investor could sell in the event that the shadow bank does not return the investor’s cash.</Sentence>
+            </p>
+            <p>
+                <Sentence sid={12}>Haircut. A haircut is the amount of collateral in a repo agreement in relation to a deposit.</Sentence>
+                &nbsp;<Sentence sid={13}>For example, if an institutional investor deposits $90 million with a shadow bank and the investor receives collateral worth $100 million, the haircut is 10%.</Sentence>
+            </p>
+            <p style={{fontSize: '24px', fontWeight: 600}}>Financial Market Participants and Market Conditions</p>
+            <p>
+                <Sentence sid={14}>The main financial market participants in the financial crisis starting in 2007 were institutional investors, such as money market mutual funds, nonfinancial firms, municipalities and state governments, and other large entities investing large amounts of cash with shadow banks.</Sentence>
+                &nbsp;<Sentence sid={15}>The amount of cash held by institutional investors was larger than could be insured through a regular depository bank.</Sentence>
+                &nbsp;<Sentence sid={16}>In addition, at that time, U.S. Treasuries were in short supply due to large holdings from foreign investors.</Sentence>
+                &nbsp;<Sentence sid={17}>Thus, the shadow banks acted as financial intermediaries, providing institutional investors with a way to turn their cash into an investment by issuing repos and ABCP as a substitute for U.S. Treasuries.</Sentence>
+            </p>
+            <p>
+                <Sentence sid={18}>The major contributing factor in the financial crisis was the bundling of subprime mortgages into mortgage-backed securities (MBSs) as well as asset-backed securities (ABSs) in the form of ABCP.</Sentence>
+                &nbsp;<Sentence sid={19}>The main trigger of the financial crisis, as described by former U.S. Federal Reserve Chairman Ben Bernanke, was the prospect of losses on subprime mortgages.</Sentence>
+                &nbsp;<Sentence sid={20}>Before 2007, housing prices in the United States and other developed nations showed an increase in prices.</Sentence>
                 &nbsp;<Sentence sid={21}><Subject sid={21}>Securitization</Subject> <Verb sid={21}>enables</Verb> the originating institution to detach itself from the default risk of the underlying pool of assets and transfer it to investors, <Verb sid={21}>allowing</Verb> these investors to select a tranche based on their specific risk and return preferences.</Sentence>
             </p>
             <p style={{fontSize: '24px', fontWeight: 600}}>Asset/Liability Maturity Management</p>
@@ -265,4 +272,4 @@ function FRMR7() {
     );
 }
 
-export default FRMR7;
+export default FRMR8;
