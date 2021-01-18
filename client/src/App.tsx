@@ -8,7 +8,7 @@ import WordList from './component/WordList';
 import ComponentProvider from './context/component-context';
 
 function App() {
-  const titles = ['Article 1', 'Article 2', 'Article 3', 'FRM Reading 1', 'FRM Reading 7'];
+  const titles = ['Article 1', 'Article 2', 'Article 3', 'FRM Reading 1', 'FRM Reading 7', '债券久期'];
   const leftWidth = '150px';
 
   const [ screenX, setScreenX ] = useState('');
