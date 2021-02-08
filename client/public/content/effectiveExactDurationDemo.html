@@ -1,0 +1,209 @@
+<html>
+    <style>
+        th, td { padding: 2px 15px;}
+    </style>
+    <script>
+        let currentStep = 0;
+        let currentYieldRate = 0.06;
+        let faceValue = 100;
+        let currentPrice = undefined;
+        let priceHighInterest = undefined;
+        let priceLowInterest = undefined;
+        let durationPlus = undefined;
+        let durationMinus = undefined;
+        let priceDifference = undefined;
+        let durationDifference = undefined;
+        let effectiveDuration = undefined;
+        let effectiveConvexity = undefined;
+        let modifiedDuration = undefined;
+        let delta = 0.01;
+
+        function submit() {
+            currentYieldRate = parseFloat(document.getElementById('yieldRateEl').value);
+            currentStep = 0;
+            _resetData();
+            document.getElementById('tableEl').innerHTML = _getTableElement();
+            document.getElementById('noteEl').innerHTML = _getNote();
+        }
+
+        function nextStep() {
+            currentStep++;
+            _resetData();
+            document.getElementById('tableEl').innerHTML = _getTableElement();
+            document.getElementById('noteEl').innerHTML = _getNote();
+        }
+
+        function prevStep() {
+            if (currentStep > 0)
+                currentStep--;
+            _resetData();
+            document.getElementById('tableEl').innerHTML = _getTableElement();
+            document.getElementById('noteEl').innerHTML = _getNote();
+        }
+
+        function _getTableElement() {
+            if (currentStep >= 1) {
+                currentPrice = (100/Math.pow((1+currentYieldRate/2), 30*2));
+            }
+            if (currentStep >= 2) {
+                priceHighInterest = (100/Math.pow((1+(currentYieldRate+delta)/2), 30*2));
+            }
+            if (currentStep >= 3) {
+                priceLowInterest = (100/Math.pow((1+(currentYieldRate-delta)/2), 30*2));
+            }
+            if (currentStep >= 4) {
+                durationPlus = (currentPrice - priceHighInterest)/(delta * currentPrice);
+            }
+            if (currentStep >= 5) {
+                durationMinus = (priceLowInterest - currentPrice)/(delta * currentPrice);
+            }
+            if (currentStep >= 6) {
+                priceDifference = priceLowInterest - priceHighInterest;
+            }
+            if (currentStep >= 7) {
+                durationDifference = durationMinus - durationPlus;
+            }
+            if (currentStep >= 8) {
+                effectiveDuration = priceDifference/(2*delta*currentPrice);
+            }
+            if (currentStep >= 9) {
+                effectiveConvexity = durationDifference/delta;
+            }
+            if (currentStep >= 10) {
+                modifiedDuration = 30*2/(1+currentYieldRate/2)/2;
+            }
+            return `
+<table style='border-collapse: collapse'>
+    <thead><tr><th></th><th>收益率</th><th>债券价格</th><th>久期计算</th><th>凸性计算</th></tr></thead>
+    <tbody>
+        <tr><td>当前收益率<span style="font-family: 'courier new',monospace">y<sub>0</sub></span></td><td>${currentYieldRate}</td><td>${_toFixed(currentPrice, 4)}</td><td></td><td></td></tr>
+        <tr><td style="font-family: 'courier new',monospace">y<sub>0</sub>+&Delta;y</td><td>${(currentYieldRate+delta).toFixed(2)}</td><td>${_toFixed(priceHighInterest, 4)}</td><td></td><td>${_durationPlusText(durationPlus, 2)}</td></tr>
+        <tr style='border-bottom: black 1px solid'><td style="font-family: 'courier new',monospace">y<sub>0</sub>-&Delta;y</td><td>${(currentYieldRate-delta).toFixed(2)}</td><td>${_toFixed(priceLowInterest, 4)}</td><td></td><td>${_durationMinusText(durationMinus, 2)}</td></tr>
+        <tr><td>相减</td><td></td><td></td><td>${_toFixed(priceDifference, 4)}</td><td>${_toFixed(durationDifference, 2)}</td></tr>
+        <tr><td>收益率之差</td><td></td><td></td><td>${_toFixed(delta*2, 2)}</td><td>${_toFixed(delta, 2)}</td></tr>
+        <tr style='border-bottom: black 1px solid'><td>有效值</td><td></td><td></td><td>${_toFixed(effectiveDuration, 2)}</td><td>${_toFixed(effectiveConvexity, 2)}</td></tr>
+        <tr><td>精确值</td><td></td><td></td><td>${_toFixed(modifiedDuration, 2)}</td><td></td></tr>
+    </tbody>
+</table>
+            `;
+        }
+
+        function _getNote() {
+            let termYield;
+            switch (currentStep)
+            {
+                case 1:
+                    termYield = currentYieldRate/2;
+                    return `
+                    <p>半年期收益率：${currentYieldRate}/2 = ${(termYield).toFixed(3)}</p>
+                    <p>当前价格：100/(1+${termYield.toFixed(3)})<sup>30&times;2</sup> = ${(100/Math.pow((1+termYield), 30*2)).toFixed(4)}</p>
+                    `;
+                case 2:
+                    termYield = (currentYieldRate+delta)/2;
+                    return `
+                    <p>年收益率为${(currentYieldRate+delta).toFixed(3)}时，半年期收益率：${(currentYieldRate+delta).toFixed(3)}/2 = ${(termYield).toFixed(3)}</p>
+                    <p>价格变为：100/(1+${termYield.toFixed(3)})<sup>30&times;2</sup> = ${(100/Math.pow((1+termYield), 30*2)).toFixed(4)}</p>
+                    `;
+                case 3:
+                    termYield = (currentYieldRate-delta)/2;
+                    return `
+                    <p>年收益率为${(currentYieldRate-delta).toFixed(3)}时，半年期收益率：${(currentYieldRate-delta).toFixed(3)}/2 = ${(termYield).toFixed(3)}</p>
+                    <p>价格变为：100/(1+${termYield.toFixed(3)})<sup>30&times;2</sup> = ${(100/Math.pow((1+termYield), 30*2)).toFixed(4)}</p>
+                    `;
+                case 4:
+                    return `
+                    <p>通过<span style="font-family: 'courier new',monospace">y<sub>0</sub></span>和<span style="font-family: 'courier new',monospace">y<sub>0</sub>+&Delta;y</span>计算久期<span style="font-family: 'courier new',monospace">D<sub>+</sub></span></p>
+                    <p style="font-family: 'courier new',monospace">(P<sub>0</sub>-P<sub>+</sub>)/(&Delta;y&times;P<sub>0</sub>)</p>
+                    <p>(${currentPrice.toFixed(4)}-${priceHighInterest.toFixed(4)})/(${delta}&times;${currentPrice.toFixed(4)})=${durationPlus.toFixed(2)}</p>
+                    `;
+                case 5:
+                    return `
+                    <p>通过<span style="font-family: 'courier new',monospace">y<sub>0</sub></span>和<span style="font-family: 'courier new',monospace">y<sub>0</sub>-&Delta;y</span>计算久期<span style="font-family: 'courier new',monospace">D<sub>-</sub></span></p>
+                    <p style="font-family: 'courier new',monospace">(P<sub>-</sub>-P<sub>0</sub>)/(&Delta;y&times;P<sub>0</sub>)</p>
+                    <p>(${priceLowInterest.toFixed(4)}-${currentPrice.toFixed(4)})/(${delta}&times;${currentPrice.toFixed(4)})=${durationMinus.toFixed(2)}</p>
+                    `;
+                case 6:
+                    return `
+                    <p>计算降低利率和升高利率时的债券价格之差<span style="font-family: 'courier new',monospace">P<sub>-</sub>-P<sub>+</sub></p>
+                    <p>${_toFixed(priceLowInterest, 4)} - ${_toFixed(priceHighInterest, 4)} = ${_toFixed(priceDifference, 4)}</p>
+                    `;
+                case 7:
+                    return `
+                    <p>计算降低利率和升高利率时的债券久期之差<span style="font-family: 'courier new',monospace">D<sub>-</sub>-D<sub>+</sub></span></p>
+                    <p>${_toFixed(durationMinus, 2)}-${_toFixed(durationPlus, 2)} = ${_toFixed(durationDifference, 2)}</p>
+                    `;
+                case 8:
+                    return `
+                    <p>计算有效久期：<span style="font-family: 'courier new',monospace">(P<sub>-</sub>-P<sub>+</sub>)/(2&times;&Delta;y&times;P<sub>0</sub>)</p>
+                    <p>(${_toFixed(priceLowInterest, 4)}-${_toFixed(priceHighInterest, 4)})/(2&times;${delta}&times;${_toFixed(currentPrice, 4)})=${_toFixed(effectiveDuration, 2)}</p>
+                    `;
+                case 9:
+                    return `
+                    <p>计算有效凸性：<span style="font-family: 'courier new',monospace">(D<sub>-</sub>-D<sub>+</sub>)/&Delta;y</p>
+                    <p>(${_toFixed(durationMinus, 2)}-${_toFixed(durationPlus, 2)})/${delta} = ${_toFixed(effectiveConvexity, 2)}</p>
+                    `;
+                case 10:
+                    return `
+                    <p>计算修正久期精确值</p>
+                    <p>由于是零息债券，麦考利久期 = 债券期限 = 30年&times;2 = 60周期</p>
+                    <p>60/(1+${currentYieldRate}/2) = ${_toFixed(60/(1+currentYieldRate/2), 2)}</p>
+                    <p>由于债券复利周期是半年，所以再除以2：${_toFixed(60/(1+currentYieldRate/2), 2)}/2 = ${_toFixed(modifiedDuration, 2)}</p>
+                    `;
+                default:
+                    return ''; 
+            }
+        }
+
+        function _resetData() {
+            currentPrice = undefined;
+            priceHighInterest = undefined;
+            priceLowInterest = undefined;
+            durationPlus = undefined;
+            durationMinus = undefined;
+            priceDifference = undefined;
+            durationDifference = undefined;
+            effectiveDuration = undefined;
+            effectiveConvexity = undefined;
+            modifiedDuration = undefined;
+        }
+
+        function _toFixed(number, digit) {
+            if (typeof(number) === 'undefined')
+                return '';
+            else
+                return number.toFixed(digit);
+        }
+
+        function _durationPlusText(number, digit) {
+            let text = _toFixed(number, digit);
+            if (text === '')
+                return '';
+            else
+                return `Duration up: ${text}`;
+        }
+
+        function _durationMinusText(number, digit) {
+            let text = _toFixed(number, digit);
+            if (text === '')
+                return '';
+            else
+                return `Duration down: ${text}`;
+        }
+    </script>
+    <body>
+        <div>
+            <p>考虑一个30年期的零息债券，复利周期为半年：</p>
+            <div>面值：100</div>
+            <br />
+            <div>当前收益率：<input id='yieldRateEl' value='0.06'/></div>
+            <br />
+            <div>
+                <button onclick="submit()">计算</button><button onclick="nextStep()">下一步</button><button onclick="prevStep()">上一步</button>
+            </div>
+            <br />
+            <div id='tableEl'></div>
+            <br />
+            <div id='noteEl'></div>
+        </div>
+    </body>
+</html>

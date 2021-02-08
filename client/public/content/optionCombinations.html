@@ -1,0 +1,273 @@
+<html>
+    <style>
+        td { padding: 10px; }
+        .inputCell { width: 80px; }
+    </style>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script>
+
+        let optionIds = [];
+        let stepFunctions = [];
+        function _getMaxExercisePrice() {
+            let price = 0;
+            optionIds.forEach(i => {
+                let exercisePrice = parseFloat(document.getElementById('strikeEl'+i).value);
+                if (exercisePrice > price) {
+                    price = exercisePrice;
+                }
+            });
+            return price;
+        }
+        
+        function submit() {
+            const width = 350, height = 250, margin = 40;
+            const maxExercisePrice = _getMaxExercisePrice();
+            stepFunctions = [];
+            optionIds.forEach(i => {
+                document.getElementById('chart'+i).innerHTML = '';
+                d3.select('#chart'+i).attr('width', width + 2*margin).attr('height', height + 2*margin);
+                
+                let exercisePrice = parseFloat(document.getElementById('strikeEl'+i).value);
+                let premium = parseFloat(document.getElementById('premiumEl'+i).value);
+
+                let y = d3.scaleLinear().domain([-maxExercisePrice, maxExercisePrice]).range([height, 0]);
+                let x = d3.scaleLinear().domain([0, 2 * maxExercisePrice]).range([0, width]);
+                const plot = d3.select('#chart'+i).append('g').attr('transform', 'translate(' + margin + ',' + margin + ')');
+                plot.append('g').attr('transform', 'translate(0, 0)').call(d3.axisLeft(y));
+                plot.append('g').attr('transform', 'translate(0, ' + height + ')').call(d3.axisBottom(x));
+                
+                const optionType = document.getElementById('optionTypeEl'+i).value;
+                const operation = document.getElementById('operationEl'+i).value;
+                if (optionType === 'call' && operation === 'buy') {
+                    const line1 = [{price: 0, payoff: -premium}, {price: exercisePrice, payoff: -premium}];
+                    const line = d3.line().x(d => x(d.price)).y(d => y(d.payoff));
+                    plot.append('path').attr('d', line(line1)).attr('stroke', 'black');
+
+                    const line2 = [{price: exercisePrice, payoff: -premium}, {price: 2*maxExercisePrice, payoff: -premium + (2*maxExercisePrice-exercisePrice)}];
+                    plot.append('path').attr('d', line(line2)).attr('stroke', 'black');
+                    stepFunctions.push(_createLinearStepFunction(_convertAxis(line1), _getSlope(line2)));
+                } else if (optionType === 'put' && operation === 'buy') {
+                    const line1 = [{price: 0, payoff: -premium+exercisePrice}, {price: exercisePrice, payoff: -premium}];
+                    const line = d3.line().x(d => x(d.price)).y(d => y(d.payoff));
+                    plot.append('path').attr('d', line(line1)).attr('stroke', 'black');
+
+                    const line2 = [{price: exercisePrice, payoff: -premium}, {price: 2*maxExercisePrice, payoff: -premium}];
+                    plot.append('path').attr('d', line(line2)).attr('stroke', 'black');
+                    stepFunctions.push(_createLinearStepFunction(_convertAxis(line1), _getSlope(line2)));
+                } else if (optionType === 'call' && operation === 'sell') {
+                    const line1 = [{price: 0, payoff: premium}, {price: exercisePrice, payoff: premium}];
+                    const line = d3.line().x(d => x(d.price)).y(d => y(d.payoff));
+                    plot.append('path').attr('d', line(line1)).attr('stroke', 'black');
+
+                    const line2 = [{price: exercisePrice, payoff: premium}, {price: 2*maxExercisePrice, payoff: premium - (2*maxExercisePrice-exercisePrice)}];
+                    plot.append('path').attr('d', line(line2)).attr('stroke', 'black');
+                    stepFunctions.push(_createLinearStepFunction(_convertAxis(line1), _getSlope(line2)));
+                } else if (optionType === 'put' && operation === 'sell') {
+                    const line1 = [{price: 0, payoff: premium-exercisePrice}, {price: exercisePrice, payoff: premium}];
+                    const line = d3.line().x(d => x(d.price)).y(d => y(d.payoff));
+                    plot.append('path').attr('d', line(line1)).attr('stroke', 'black');
+
+                    const line2 = [{price: exercisePrice, payoff: premium}, {price: 2*maxExercisePrice, payoff: premium}];
+                    plot.append('path').attr('d', line(line2)).attr('stroke', 'black');
+                    stepFunctions.push(_createLinearStepFunction(_convertAxis(line1), _getSlope(line2)));
+                }
+            });
+            
+            if (stepFunctions.length >= 2) {
+                document.getElementById('portfolioCharts').innerHTML = '';
+                d3.select('#portfolioCharts').attr('width', width + 2*margin).attr('height', height + 2*margin);
+                let y = d3.scaleLinear().domain([-maxExercisePrice, maxExercisePrice]).range([height, 0]);
+                let x = d3.scaleLinear().domain([0, 2 * maxExercisePrice]).range([0, width]);
+                const plot = d3.select('#portfolioCharts').append('g').attr('transform', 'translate(' + margin + ',' + margin + ')');
+                plot.append('g').attr('transform', 'translate(0, 0)').call(d3.axisLeft(y));
+                plot.append('g').attr('transform', 'translate(0, ' + height + ')').call(d3.axisBottom(x));
+
+                const portfolioStepFunction = _addStepFunction(stepFunctions[0], stepFunctions[1]);
+                let i = 0;
+                for (i = 0; i < portfolioStepFunction.segments.length - 1; i++) {
+                    let s = portfolioStepFunction.segments[i];
+                    let y1 = s.y0 + s.slope*(s.x1-s.x0);
+                    let lineData = [{x:s.x0, y:s.y0}, {x:s.x1, y:y1}];
+                    let line = d3.line().x(d => x(d.x)).y(d => y(d.y));
+                    plot.append('path').attr('d', line(lineData)).attr('stroke', 'black');
+                }
+                let sLast = portfolioStepFunction.segments[i];
+                let x1 = 2*maxExercisePrice;
+                let y1 = sLast.y0 + sLast.slope*(x1 - sLast.x0);
+                let lineData = [{x:sLast.x0, y:sLast.y0}, {x:x1, y:y1}];
+                let line = d3.line().x(d => x(d.x)).y(d => y(d.y));
+                plot.append('path').attr('d', line(lineData)).attr('stroke', 'black');
+            }
+        }
+
+        function _convertAxis(pricePayoffPoints) {
+            return pricePayoffPoints.map(p => {
+                return {
+                    x: p.price,
+                    y: p.payoff
+                };
+            });
+        }
+
+        function _getSlope(pricePayoffPoints) {
+            return (pricePayoffPoints[1].payoff - pricePayoffPoints[0].payoff) / (pricePayoffPoints[1].price - pricePayoffPoints[0].price); 
+        }
+
+        function add() {
+            let i = 0;
+            if (optionIds.length > 0) {
+                i = optionIds[optionIds.length-1]+1;
+            }
+            optionIds.push(i);
+            const optionHTML = 
+`<div style='width: 450px'>
+    <table>
+        <tr><td>操作：</td><td><select id='operationEl${i}' class='inputCell' ><option value='buy'>买入</option><option value='sell'>卖出</option></select></td></tr>
+        <tr><td>期权类型：</td><td><select id='optionTypeEl${i}' class='inputCell'><option value='call'>看涨期权</option><option value='put'>看跌期权</option></select></td></tr>
+        <tr><td>执行价格：</td><td><input id='strikeEl${i}' value='25' class='inputCell' /></td></tr>
+        <tr><td>期权费：</td><td><input id='premiumEl${i}' value='10' class='inputCell' /></td></tr>
+    </table>
+    <svg id='chart${i}'></svg>
+</div>`;
+            document.getElementById('optionContainer').insertAdjacentHTML('beforeend', optionHTML);
+        }
+
+        function clean() {
+            document.getElementById('optionContainer').innerHTML = '';
+        }
+
+        function _getY(x, segments) {
+            let s = segments.find(s => s.x0 === x);
+            if (s) {
+                return s.y0;
+            }
+            const sFirst = segments[0];
+            if (x < sFirst.x0) {
+                return sFirst.y0 - sFirst.slope*(sFirst.x0 - x);
+            }
+            const sLast = segments[segments.length - 1];
+            if (x > sLast.x0) {
+                return sLast.y0 + sLast.slope*(x - sLast.x0);
+            }
+            s = segments.find(s => x > s.x0 && x < s.x1);
+            if (s) {
+                return s.y0 + s.slope*(x - s.x0);
+            }
+            return undefined;
+        }
+
+        /**
+         * Assume points is in [{x,y}] format, and in x ascending order
+         * Assume points[0].x = 0
+         */
+        function _createLinearStepFunction(points, lastSegmentSlope) {
+            let i = 0;
+            const segments = [];
+            for (i = 0; i < points.length-1; i++) {
+                let slope = (points[i+1].y - points[i].y) / (points[i+1].x - points[i].x);
+                segments.push({x0: points[i].x, y0: points[i].y, slope: slope, x1: points[i+1].x});
+            }
+            segments.push({x0: points[i].x, y0: points[i].y, slope: lastSegmentSlope, x1: undefined});
+            return {
+                segments: segments
+            }
+        }
+
+        function _addStepFunction(func1, func2) {
+            let s1 = func1.segments;
+            let s2 = func2.segments;
+            const s12 = [];
+            let currentS1Slope = 0;
+            let currentS2Slope = 0;
+            let currentSegment = undefined;
+            while (s1.length > 0 || s2.length > 0) {
+                let s1Head = s1[0];
+                let s2Head = s2[0];
+                if (!!s1Head && !!s2Head && s1Head.x0 === s2Head.x0) {
+                    if (currentSegment) {
+                        currentSegment.x1 = Math.min(s1Head.x0);
+                    }
+                    s1 = s1.slice(1);
+                    s2 = s2.slice(1);
+                    currentS1Slope = s1Head.slope;
+                    currentS2Slope = s2Head.slope;
+                    currentSegment = {
+                        x0: s1Head.x0,
+                        y0: _getY(s1Head.x0, func1.segments) + _getY(s1Head.x0, func2.segments),
+                        slope: currentS1Slope + currentS2Slope
+                    };
+                    s12.push(currentSegment);
+                }
+                else if (!s1Head) {
+                    if (currentSegment) {
+                        currentSegment.x1 = Math.min(s2Head.x0);
+                    }
+                    s2 = s2.slice(1);
+                    currentS2Slope = s2Head.slope;
+                    currentSegment = {
+                        x0: s2Head.x0,
+                        y0: _getY(s2Head.x0, func1.segments) + _getY(s2Head.x0, func2.segments),
+                        slope: currentS1Slope + currentS2Slope
+                    };
+                    s12.push(currentSegment);
+                }
+                else if (!s2Head) {
+                    if (currentSegment) {
+                        currentSegment.x1 = Math.min(s1Head.x0);
+                    }
+                    s1 = s1.slice(1);
+                    currentS1Slope = s1Head.slope;
+                    currentSegment = {
+                        x0: s1Head.x0,
+                        y0: _getY(s1Head.x0, func1.segments) + _getY(s1Head.x0, func2.segments),
+                        slope: currentS1Slope + currentS2Slope
+                    };
+                    s12.push(currentSegment);
+                }
+                else if (s1Head.x0 > s2Head.x0) {
+                    if (currentSegment) {
+                        currentSegment.x1 = Math.min(s2Head.x0);
+                    }
+                    s2 = s2.slice(1);
+                    currentS2Slope = s2Head.slope;
+                    currentSegment = {
+                        x0: s2Head.x0,
+                        y0: _getY(s2Head.x0, func1.segments) + _getY(s2Head.x0, func2.segments),
+                        slope: currentS1Slope + currentS2Slope
+                    };
+                    s12.push(currentSegment);
+                }
+                else if (s1Head.x0 < s2Head.x0) {
+                    if (currentSegment) {
+                        currentSegment.x1 = Math.min(s1Head.x0);
+                    }
+                    s1 = s1.slice(1);
+                    currentS1Slope = s1Head.slope;
+                    currentSegment = {
+                        x0: s1Head.x0,
+                        y0: _getY(s1Head.x0, func1.segments) + _getY(s1Head.x0, func2.segments),
+                        slope: currentS1Slope + currentS2Slope
+                    };
+                    s12.push(currentSegment);
+                } else {
+                    console.error('Any conditions I missed?', s1Head, s2Head);
+                }
+            }
+
+            return {
+                segments: s12
+            }
+        }
+
+    </script>
+    <body>
+        <div>
+            <button onclick='add()'>添加</button>
+            <button onclick='clean()'>清空</button>            
+            <button onclick='submit()'>计算</button>
+        </div>
+        <div id='optionContainer' style='display: flex;'>
+        </div>
+        <div><svg id='portfolioCharts'></svg></div>
+    </body>
+</html>

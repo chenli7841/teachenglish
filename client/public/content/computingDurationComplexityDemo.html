@@ -1,0 +1,71 @@
+<html>
+    <style>
+        th, td { padding: 2px 15px;}
+    </style>
+    <script>
+        const faceValue = 100;
+	    let yieldRate = undefined;
+		let couponRate = undefined;
+		let period = undefined;
+        function submit() {
+            yieldRate = parseFloat(document.getElementById('yieldRateEl').value);
+			couponRate = parseFloat(document.getElementById('couponRateEl').value);
+			period = parseInt(document.getElementById('periodEl').value);
+            document.getElementById('tableEl').innerHTML = _getTableElement();
+        }
+
+        function _getTableElement() {
+            let periodYieldRate = yieldRate / 2;
+            let periodCouponRate = couponRate / 2;
+            let tableEl = `<table style='border-collapse: collapse; text-align: left;'>
+                <thead>
+                    <tr><th>周期 t</th><th>现金流 C<sub>t</sub></th><th>现值 C<sub>t</sub>/(1+y)<sup>t</sup></th><th>久期项 (tPV<sub>t</sub>)</th><th>凸性项 (t(t+1)PV<sub>t</sub>/(1+y)<sup>2</sup>)</th></tr></thread>
+                </thead>
+                <tbody>`;
+            let i = 0;
+            let totalPresentValue = 0;
+            let totalDurationTerm = 0;
+            let totalConvexityTerm = 0;
+            for (i = 1; i <= period; i++) {
+                let cashFlow = i === period ? faceValue + faceValue*periodCouponRate : faceValue*periodCouponRate;
+                let presentValue = cashFlow / Math.pow((1+periodYieldRate), i);
+                totalPresentValue = totalPresentValue + presentValue;
+                let durationTerm = i * presentValue;
+                totalDurationTerm = totalDurationTerm + durationTerm;
+                let convexityTerm = i * (i+1) * presentValue / Math.pow((1+periodYieldRate), 2);
+                totalConvexityTerm = totalConvexityTerm + convexityTerm;
+                tableEl = tableEl + `<tr><td>${i}</td><td>${cashFlow.toFixed(1)}</td><td>${presentValue.toFixed(3)}</td><td>${durationTerm.toFixed(3)}</td><td>${convexityTerm.toFixed(3)}</td></tr>`;
+            }
+            tableEl = tableEl + `<tr style='border-top: 1px black solid'><td>总和</td><td></td><td>${totalPresentValue.toFixed(2)}</td><td>${totalDurationTerm.toFixed(3)}</td><td>${totalConvexityTerm.toFixed(3)}</td></tr>`;
+            let periodDuration = totalDurationTerm / totalPresentValue;
+            let periodConvexity = totalConvexityTerm / totalPresentValue;
+            tableEl = tableEl + `<tr><td>周期值</td><td></td><td></td><td>${periodDuration.toFixed(2)}</td><td>${periodConvexity.toFixed(2)}</td></tr>`;
+            let yearDuration = periodDuration * 0.5;
+            let modifiedDuration = yearDuration / (1+periodYieldRate);
+            let yearConvexity = periodConvexity * 0.5 * 0.5;
+            tableEl = tableEl + `<tr><td>换算成年</td><td></td><td></td><td>${yearDuration.toFixed(2)}</td><td></td></tr>`;
+            tableEl = tableEl + `<tr><td>修正久期</td><td></td><td></td><td>${modifiedDuration.toFixed(2)}</td><td></td></tr>`;
+            tableEl = tableEl + `<tr><td>凸性</td><td></td><td></td><td></td><td>${yearConvexity.toFixed(2)}</td></tr>`;
+            tableEl = tableEl + '</tbody></table>';
+            return tableEl;
+        }
+    </script>
+    <body>
+        <div>
+            <p>考虑一个复利周期为半年的债券：</p>
+            <div>面值：100</div>
+            <br />
+            <div>票面利率：<input id='couponRateEl' value='0.06'/></div>
+            <br />
+            <div>当前收益率：<input id='yieldRateEl' value='0.06'/></div>
+            <br />
+			<div>复利周期数：<input id='periodEl' value='4'/></div>
+            <br />
+            <div>
+                <button onclick="submit()">计算</button>
+            </div>
+            <br />
+            <div id='tableEl'></div>
+        </div>
+    </body>
+</html>

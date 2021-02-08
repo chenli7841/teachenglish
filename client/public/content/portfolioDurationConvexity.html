@@ -1,0 +1,262 @@
+<html>
+    <style>
+        th, td { padding: 2px 15px;}
+    </style>
+    <script>
+        let currentStep = 0;
+        const faceValue = 100;
+
+        const bondList = [{
+            seq: 1,
+            maturity: 10,
+            couponRate: 0.06,
+            yieldRate: 0.06,
+            periodLength: 0.5,
+            amount: 10000
+        }, {
+            seq: 2,
+            maturity: 1,
+            couponRate: 0,
+            yieldRate: 0.06,
+            periodLength: 0.5,
+            amount: 5000
+        }, {
+            seq: 3,
+            maturity: 30,
+            couponRate: 0,
+            yieldRate: 0.06,
+            periodLength: 0.5,
+            amount: -10000
+        }];
+        
+        function submit() {
+            currentStep = 0;
+            _resetData();
+            document.getElementById('tableEl').innerHTML = _getTableElement();
+            document.getElementById('noteEl').innerHTML = _getNote();
+        }
+
+        function nextStep() {
+            currentStep++;
+            _resetData();
+            document.getElementById('tableEl').innerHTML = _getTableElement();
+            document.getElementById('noteEl').innerHTML = _getNote();
+        }
+
+        function prevStep() {
+            if (currentStep > 0)
+                currentStep--;
+            _resetData();
+            document.getElementById('tableEl').innerHTML = _getTableElement();
+            document.getElementById('noteEl').innerHTML = _getNote();
+        }
+
+        function _getTableElement() {
+            if (currentStep >= 1) {
+                _calculatePresentValue(bondList[0]);
+            }
+            if (currentStep >= 2) {
+                _calculatePresentValue(bondList[1]);
+            }
+            if (currentStep >= 3) {
+                _calculatePresentValue(bondList[2]);
+            }
+            if (currentStep >= 4) {
+                _calculateTotalValue(bondList[0]);
+            }
+            if (currentStep >= 5) {
+                _calculateTotalValue(bondList[1]);
+            }
+            if (currentStep >= 6) {
+                _calculateTotalValue(bondList[2]);
+            }
+            if (currentStep >= 7) {
+                _calculateModifiedDuration(bondList[0]);
+            }
+            if (currentStep >= 8) {
+                _calculateModifiedDuration(bondList[1]);
+            }
+            if (currentStep >= 9) {
+                _calculateModifiedDuration(bondList[2]);
+            }
+            if (currentStep >= 10) {
+                _calculateDollarDuration(bondList[0]);
+            }
+            if (currentStep >= 11) {
+                _calculateDollarDuration(bondList[1]);
+            }
+            if (currentStep >= 12) {
+                _calculateDollarDuration(bondList[2]);
+            }
+            if (currentStep >= 13) {
+                _calculatePortfolioDollarDuration(bondList[0]);
+            }
+            if (currentStep >= 14) {
+                _calculatePortfolioDollarDuration(bondList[1]);
+            }
+            if (currentStep >= 15) {
+                _calculatePortfolioDollarDuration(bondList[2]);
+            }
+            if (currentStep >= 16) {
+                _calculateConvexity(bondList[0]);
+            }
+            if (currentStep >= 17) {
+                _calculateConvexity(bondList[1]);
+            }
+            if (currentStep >= 18) {
+                _calculateConvexity(bondList[2]);
+            }
+            if (currentStep >= 19) {
+                _calculatePortfolioDollarConvexity(bondList[0]);
+            }
+            if (currentStep >= 20) {
+                _calculatePortfolioDollarConvexity(bondList[1]);
+            }
+            if (currentStep >= 21) {
+                _calculatePortfolioDollarConvexity(bondList[2]);
+            }
+            return `
+<table style='border-collapse: collapse; text-align: left;'>
+    <thead><tr><th></th><th>债券${bondList[0].seq}</th><th>债券${bondList[1].seq}</th><th>债券${bondList[2].seq}</th><th>债券组合</th></tr></thead>
+    <tbody>
+        <tr><td>期限（年）</td><td>${_getInput(bondList[0].maturity)}</td><td>${_getInput(bondList[1].maturity)}</td><td>${_getInput(bondList[2].maturity)}</td><td></td></tr>
+        <tr><td>票面利率</td><td>${_getInput(0.06)}</td><td>${_getInput(0)}</td><td>${_getInput(0)}</td><td></td></tr>
+        <tr style='border-bottom: black 1px solid'><td>收益率</td><td>${_getInput(0.06)}</td><td>${_getInput(0.06)}</td><td>${_getInput(0.06)}</td><td></td></tr>
+        <tr><td>单位价格（现值）P<sub>i</sub></td><td>${_toFixed(bondList[0].presentValue, 2)}</td><td>${_toFixed(bondList[1].presentValue, 2)}</td><td>${_toFixed(bondList[2].presentValue, 2)}</td><td></td></tr>
+        <tr><td>修正久期D<sub>i</sub><sup>*</sup></td><td>${_toFixed(bondList[0].modifiedDuration, 2)}</td><td>${_toFixed(bondList[1].modifiedDuration, 2)}</td><td>${_toFixed(bondList[2].modifiedDuration, 2)}</td><td></td></tr>
+        <tr style='border-bottom: black 1px solid'><td>凸性 C<sub>i</sub></td><td>${_toFixed(bondList[0].convexity, 2)}</td><td>${_toFixed(bondList[1].convexity, 2)}</td><td>${_toFixed(bondList[2].convexity, 2)}</td><td></td></tr>
+        <tr><td>债券的数量x<sub>i</sub></td><td>${_getInput(bondList[0].amount)}</td><td>${_getInput(bondList[1].amount)}</td><td>${_getInput(bondList[2].amount)}</td><td></td></tr>
+        <tr><td>债券的总价格x<sub>i</sub>P<sub>i</sub></td><td>${_toFixed(bondList[0].dollarAmount, 0)}</td><td>${_toFixed(bondList[1].dollarAmount, 0)}</td><td>${_toFixed(bondList[2].dollarAmount, 0)}</td><td></td></tr>
+        <tr style='border-bottom: black 1px solid'><td>权重w<sub>i</sub></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>单位美元久期D<sub>i</sub><sup>*</sup>P<sub>i</sub></td><td>${_toFixed(bondList[0].dollarDuration, 2)}</td><td>${_toFixed(bondList[1].dollarDuration, 2)}</td><td>${_toFixed(bondList[2].dollarDuration, 2)}</td><td></td></tr>
+        <tr style='border-bottom: black 1px solid'><td>总美元久期x<sub>i</sub>D<sub>i</sub><sup>*</sup>P<sub>i</sub></td><td>${_toFixed(bondList[0].portfolioDollarDuration, 0)}</td><td>${_toFixed(bondList[1].portfolioDollarDuration, 0)}</td><td>${_toFixed(bondList[2].portfolioDollarDuration, 0)}</td><td></td></tr>
+        <tr><td>总美元凸性x<sub>i</sub>C<sub>i</sub><sup>*</sup>P<sub>i</sub></td><td>${_toFixed(bondList[0].portfolioDollarConvexity, 0)}</td><td>${_toFixed(bondList[1].portfolioDollarConvexity, 0)}</td><td>${_toFixed(bondList[2].portfolioDollarConvexity, 0)}</td><td></td></tr>
+    </tbody>
+</table>
+            `;
+        }
+
+        function _getInput(value) {
+            return `<input type='text' style='width: 60px;' value='${value}' />`;
+        }
+
+        function _getNote() {
+            switch (currentStep)
+            {
+                case 1:
+                    return `
+                    `;
+                case 2:
+                    return `
+                    `;
+                case 3:
+                    return `
+                    `;
+                case 4:
+                    return `
+                    `;
+                case 5:
+                    return `
+                    `;
+                case 6:
+                    return `
+                    `;
+                case 7:
+                    return `
+                    `;
+                case 8:
+                    return `
+                    `;
+                case 9:
+                    return `
+                    `;
+                case 10:
+                    return `
+                    `;
+                default:
+                    return ''; 
+            }
+        }
+
+        function _resetData() {
+            bondList.forEach(b => {
+                b.presentValue = undefined;
+                b.modifiedDuration = undefined;
+                b.convexity = undefined;
+                b.dollarAmount = undefined;
+                b.dollarDuration = undefined;
+                b.portfolioDollarDuration = undefined;
+                b.portfolioDollarConvexity = undefined;
+            });
+        }
+
+        function _toFixed(number, digit) {
+            if (typeof(number) === 'undefined')
+                return '';
+            else
+                return number.toFixed(digit);
+        }
+
+        function _calculatePresentValue(bond) {
+            let totalPresentValue = 0;
+            let i = 1;
+            for (i = 1; i <= bond.maturity/bond.periodLength; i++) {
+                let cashFlow = i === bond.maturity/bond.periodLength ? faceValue + faceValue*bond.couponRate*bond.periodLength : faceValue*bond.couponRate*bond.periodLength;
+                totalPresentValue = totalPresentValue + cashFlow / Math.pow((1+bond.yieldRate*bond.periodLength), i);
+            }
+            bond.presentValue = totalPresentValue;
+        }
+
+        function _calculateModifiedDuration(bond) {
+            let totalDurationTerm = 0;
+            let i = 1;
+            for (i = 1; i <= bond.maturity/bond.periodLength; i++) {
+                let cashFlow = i === bond.maturity/bond.periodLength ? faceValue + faceValue*bond.couponRate*bond.periodLength : faceValue*bond.couponRate*bond.periodLength;
+                totalDurationTerm = totalDurationTerm + i * cashFlow / Math.pow((1+bond.yieldRate*bond.periodLength), i);
+            }
+            const mcCauleyDuration = totalDurationTerm/bond.presentValue;
+            bond.modifiedDuration = mcCauleyDuration/(1+bond.yieldRate*bond.periodLength)*bond.periodLength;
+        }
+
+        function _calculateConvexity(bond) {
+            let totalConvexityTerm = 0;
+            let i = 1;
+            for (i = 1; i <= bond.maturity/bond.periodLength; i++) {
+                let cashFlow = i === bond.maturity/bond.periodLength ? faceValue + faceValue*bond.couponRate*bond.periodLength : faceValue*bond.couponRate*bond.periodLength;
+                totalConvexityTerm = totalConvexityTerm + i * (i+1) * cashFlow / Math.pow((1+bond.yieldRate*bond.periodLength), i) / Math.pow((1+bond.yieldRate*bond.periodLength), 2);
+            }
+            bond.convexity = totalConvexityTerm / bond.presentValue * bond.periodLength * bond.periodLength;
+        }
+
+        function _calculateTotalValue(bond) {
+            bond.dollarAmount = Math.round(bond.presentValue * 100) / 100 * bond.amount;
+        }
+
+        function _calculateDollarDuration(bond) {
+            bond.dollarDuration = (Math.round(bond.modifiedDuration * 100) / 100) * (Math.round(bond.presentValue * 100) / 100);
+        }
+
+        function _calculatePortfolioDollarDuration(bond) {
+            bond.portfolioDollarDuration = bond.amount * bond.dollarDuration;
+        }
+
+        function _calculatePortfolioDollarConvexity(bond) {
+            bond.portfolioDollarConvexity = bond.amount * (Math.round(bond.convexity*100)/100) * (Math.round(bond.presentValue*100)/100);
+        }
+
+    </script>
+    <body>
+        <div>
+            <div>
+                <button onclick="submit()">计算</button><button onclick="nextStep()">下一步</button><button onclick="prevStep()">上一步</button>
+            </div>
+            <br />
+            <div id='tableEl'></div>
+            <br />
+            <div id='noteEl'></div>
+        </div>
+    </body>
+    <script>
+        document.getElementById('tableEl').innerHTML = _getTableElement();
+    </script>
+</html>
